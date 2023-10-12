@@ -1,7 +1,7 @@
 #Importamos de nuevo el modulo de socket
 import socket
 
-#Definimos el objeto servidor para nuestro socket usando AF_INET y STREAM
+#Definimos el objeto servidor del tipo socket STREAM del dominio AF_INET
 ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #Se le asigna el servidor (localhost) y el puerto asigando en la tarea 3490
