@@ -18,20 +18,26 @@ clientes = []
 def handle_client(obj, addr):
     print(f"Conexion establecida de la IP: {addr[0]} Puerto: {addr[1]}")
 
-    while True:
-        #Esperamos los datos del cliente
-        data = obj.recv(1024)
-        if not data:
-            break
+    #Se agrego el try para atrapar los errores de los clientes al cerrar su conexion y avisar que se cerro
+    try:
+        while True:
+            #Esperamos los datos del cliente
+            data = obj.recv(1024)
+            if not data:
+               break #Si el cliente no envia datos, se cierra la conexion
 
-        #Enviamos los datos recibidos de vuelta al cliente
-        print(f"Respuesta del cliente {addr}: {data.decode()})")
-        mens = ("Si ves este mensaje, tienes un 10 en la materia!")
-        obj.sendall(mens.encode())
+            #Enviamos los datos recibidos de vuelta al cliente
+            print(f"Respuesta del cliente {addr}: {data.decode()})")
+            mens = ("Si ves este mensaje, tienes un 10 en la materia!")
+            obj.sendall(mens.encode())
 
-    #Aqui cerramos la conexion al cliente
-    obj.close()
-    print(f"Conexion con {addr} cerrada")
+    except Exception as e:
+        print(f"Error con la conexion con {addr}: {e}")
+    finally:
+        #Aqui cerramos la conexion al cliente
+        obj.close()
+        clientes.remove(obj)
+        print(f"Conexion con {addr} cerrada")
 
 #Un loop mientras la conexion siga establecida
 while True:
