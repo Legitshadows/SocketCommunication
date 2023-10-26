@@ -6,7 +6,7 @@ port = 3490
 import socket
 
 #Aqui creamos el objeto socket
-obj = socket.socket()
+obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #Se crea la conexion al servidor cuando el cliente introduce el ip
 host = input("Introducir el ip del servidor >> ")
@@ -15,12 +15,18 @@ print("Conectado al servidor")
 
 #Un loop mientras la conexion siga establecida
 while True:
-    mens = input("Mensaje desde el cliente al servidor >> ")
+    #Aqui se puede enviar mensajes al servidor
+    mens = input("Mensaje desde el cliente al servidor (o 'exit' para salir) >> ")
 
-    obj.send(mens.encode('ascii'))
-    
+    #Aqui se envia los datos al servidor
+    obj.sendall(mens.encode())
+
+    if mens.lower() == 'exit':
+        break
+
+    #Aqui se recibe y muestra la respuesta del servidor
     recibido = obj.recv(1024)
-    print(recibido)
+    print(f"Respuesta del servidor: {recibido.decode()}")
 
 #Se cierra la conexion al servidor
 obj.close()
