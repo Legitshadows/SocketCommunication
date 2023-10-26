@@ -1,4 +1,4 @@
-#Importamos de nuevo el modulo de socket
+#Importamos de nuevo el modulo de socket y ahora el de threading para las conexiones de los clientes
 import socket
 import threading
 
@@ -31,6 +31,7 @@ def handle_client(obj, addr):
             mens = ("Si ves este mensaje, tienes un 10 en la materia!")
             obj.sendall(mens.encode())
 
+    #Manejamos la excepcion del cliente al cerrar su session, ya que arroja un error largo, esto lo reduce :)
     except Exception as e:
         print(f"Error con la conexion con {addr}: {e}")
     finally:
