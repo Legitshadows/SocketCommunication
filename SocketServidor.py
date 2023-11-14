@@ -1,4 +1,5 @@
 #Importamos de nuevo el modulo de socket y ahora el de threading para las conexiones de los clientes
+import os
 import socket
 import threading
 
@@ -25,6 +26,32 @@ def handle_client(obj, addr):
             data = obj.recv(1024)
             if not data:
                break #Si el cliente no envia datos, se cierra la conexion
+
+            #Aqui vamos a pasar lo que envia al cliente para activar nuestros comandos
+            command, *args = data.decode().split()
+
+            if command == 'ls':
+                file_list = os.listdir('.')
+                response = '\n'.join(file_list)
+            
+            elif command == 'mv':
+                if len(args) == 2:
+                    os.rename(args[0], args[1])
+                    response = f"El archivo {args[0]} movido a {args[1]}"
+                else:
+                    response = "Uso: mv <origen> <destino>"
+            
+            elif command == 'up':
+                os.chdir('..')
+                response = f"Directiorio actual: {os.getcwd()}"
+            
+            elif command == 'bye':
+                response = "Desconectado del servidor"
+                break
+
+            elif command == 'echo':
+                response = ' '.join(args)
+
 
             #Enviamos los datos recibidos de vuelta al cliente
             print(f"Respuesta del cliente {addr}: {data.decode()})")
