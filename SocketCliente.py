@@ -18,9 +18,15 @@ while True:
     #Aqui se puede enviar mensajes al servidor
     mens = input("Ingresar un comando (o 'bye' para salir) >> ")
 
+    #Este es un control para que cuando el cliente de enter, la consola no se quebre
+    if not mens:
+        print("Por favor, ingrese un comando valido.")
+        continue
+
     #Aqui se envia los datos al servidor
     obj.sendall(mens.encode())
 
+    #En vez de usar exit como salida, nuestro profesor pidio el comando de bye
     if mens.lower() == 'bye':
         break
 
@@ -31,4 +37,6 @@ while True:
 #Se cierra la conexion al servidor
 obj.close()
 
+#Aqui se imprime cuando se cierra la conexion, pero la consola se cierra y no se ve este mensaje
+#To do: Make this show up in the console some how?
 print("Conexion cerrada")

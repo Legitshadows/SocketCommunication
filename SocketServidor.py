@@ -30,33 +30,46 @@ def handle_client(obj, addr):
             #Aqui vamos a pasar lo que envia al cliente para activar nuestros comandos
             command, *args = data.decode().split()
 
+            #Aqui se controla del lado servidor para que al dar enter, no se quebre la consola
+            if not command:
+                continue
+            
+            #Primer comando ls, que muestra una lista de los contenidos del actual directorio
             if command == 'ls':
                 file_list = os.listdir('.')
                 response = '\n'.join(file_list)
             
+            #Segundo comando de mv que se usa para mover un archivo de origen a destino
             elif command == 'mv':
                 if len(args) == 2:
                     os.rename(args[0], args[1])
-                    response = f"El archivo {args[0]} movido a {args[1]}"
+                    response = f"El archivo {args[0]} fue movido a {args[1]}"
                 else:
                     response = "Uso: mv <origen> <destino>"
             
+            #Tercer comando para subir un lugar en el directorio por ejemplo: C:/Windows11/Documents/Code Projects
+            #Le das al comando up y pasa a C:/Windows11/Documents
             elif command == 'up':
                 os.chdir('..')
                 response = f"Directiorio actual: {os.getcwd()}"
             
+            #Cuarto comando de bye que simplemente desconecta el cliente del servidor y cierra la consola
+            #To do: Find solution to disconnect from server but not close the client console
             elif command == 'bye':
                 response = "Desconectado del servidor"
                 break
-
+            
+            #Quinto comando que simplemente replica el mensaje de vuelta que envio el cliente via echo
             elif command == 'echo':
                 response = ' '.join(args)
+            else:
+                #Control de comandos por si el cliente manda algo no reconocido por el servidor
+                response = "Comando no reconocido"
 
 
             #Enviamos los datos recibidos de vuelta al cliente
             print(f"Respuesta del cliente {addr}: {data.decode()})")
-            mens = ("Si ves este mensaje, tienes un 10 en la materia!")
-            obj.sendall(mens.encode())
+            obj.sendall(response.encode())
 
     #Manejamos la excepcion del cliente al cerrar su session, ya que arroja un error largo, esto lo reduce :)
     except Exception as e:
