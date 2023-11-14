@@ -16,12 +16,12 @@ print("Conectado al servidor")
 #Un loop mientras la conexion siga establecida
 while True:
     #Aqui se puede enviar mensajes al servidor
-    mens = input("Mensaje desde el cliente al servidor (o 'exit' para salir) >> ")
+    mens = input("Ingresar un comando (o 'bye' para salir) >> ")
 
     #Aqui se envia los datos al servidor
     obj.sendall(mens.encode())
 
-    if mens.lower() == 'exit':
+    if mens.lower() == 'bye':
         break
 
     #Aqui se recibe y muestra la respuesta del servidor
