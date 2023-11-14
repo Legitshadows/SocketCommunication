@@ -34,7 +34,7 @@ def handle_client(obj, addr):
             if not command:
                 continue
             
-            #Primer comando ls, que muestra una lista de los contenidos del actual directorio
+            #Primer comando ls, que muestra una lista de los contenidos del directorio tmp
             if command == 'ls':
                 file_list = os.listdir('.')
                 response = '\n'.join(file_list)
