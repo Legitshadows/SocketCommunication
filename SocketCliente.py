@@ -21,6 +21,7 @@ while True:
     #Este es un control para que cuando el cliente de enter, la consola no se quebre
     if not mens:
         print("Por favor, ingrese un comando valido.")
+        print("Si quiere ver una lista de comandos, use el comando ayuda.")
         continue
 
     #Aqui se envia los datos al servidor

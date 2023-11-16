@@ -35,6 +35,7 @@ def handle_client(obj, addr):
                 continue
             
             #Primer comando ls, que muestra una lista de los contenidos del directorio tmp
+            #To do: ls makes console act weird, might have to redo the command
             if command == 'ls':
                 file_list = os.listdir('.')
                 response = '\n'.join(file_list)
@@ -58,10 +59,19 @@ def handle_client(obj, addr):
             elif command == 'bye':
                 response = "Desconectado del servidor"
                 break
+
+            #Un comando para listar todos los comandos (idea de un amigo del salon)
+            elif command == 'ayuda':
+                response = "Lista de comandos: ls, mv, up, bye, echo"
+                          
             
             #Quinto comando que simplemente replica el mensaje de vuelta que envio el cliente via echo
             elif command == 'echo':
-                response = ' '.join(args)
+                #Este control es para prevenir que el cliente crashee su consola por mandar echo sin mensaje
+                if not (args):
+                    response = "Por favor incluye un mensaje con el comando."
+                else:
+                    response = ' '.join(args)
             else:
                 #Control de comandos por si el cliente manda algo no reconocido por el servidor
                 response = "Comando no reconocido"
