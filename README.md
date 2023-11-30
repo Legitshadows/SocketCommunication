@@ -8,6 +8,6 @@ Commands are as follows:
 
 ls, mv, up, bye and echo, might add more soon.
 
-this code has hedge cases checks to avoid certain things from breaking the console like enter or mis inputs.
+this code has edge cases checks to avoid certain things from breaking the console like enter or mis inputs.
 
 Will probs add screenshots soon.
