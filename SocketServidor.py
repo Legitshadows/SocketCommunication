@@ -1,5 +1,6 @@
 #Importamos de nuevo el modulo de socket y ahora el de threading para las conexiones de los clientes
 import os
+import shutil
 import socket
 import threading
 
@@ -15,13 +16,19 @@ ser.listen()
 #Aqui almacenamos nuestros clientes
 clientes = []
 
+servidor_activo = True
+
+mensaje_enviado = False
+
+
+
 #Una funcion para manejar las conexiones de los clientes
 def handle_client(obj, addr):
     print(f"Conexion establecida de la IP: {addr[0]} Puerto: {addr[1]}")
 
     #Se agrego el try para atrapar los errores de los clientes al cerrar su conexion y avisar que se cerro
     try:
-        while True:
+        while servidor_activo:
             #Esperamos los datos del cliente
             data = obj.recv(1024)
             if not data:
@@ -37,14 +44,37 @@ def handle_client(obj, addr):
             #Primer comando ls, que muestra una lista de los contenidos del directorio tmp
             #To do: ls makes console act weird, might have to redo the command
             if command == 'ls':
-                file_list = os.listdir('.')
-                response = '\n'.join(file_list)
+                if len(args) == 1:
+                    destination = ('C://' + args[0])
+                    if os.path.exists(destination):
+                        file_list = os.listdir('C://' + destination)
+                        response = '\n'.join(file_list)
+                    else:
+                        response = f"El directorio {destination} no existe"
+                else:
+                    file_list = os.listdir('C://')
+                    response = '\n'.join(file_list)
             
             #Segundo comando de mv que se usa para mover un archivo de origen a destino
             elif command == 'mv':
+                # Mover un archivo (args[0] = origen, args[1] = destino)
                 if len(args) == 2:
-                    os.rename(args[0], args[1])
-                    response = f"El archivo {args[0]} fue movido a {args[1]}"
+                    source_file = args[0]
+                    destination_file = args[1]
+
+                    # Validar extensiones permitidas (txt, jpg, jpeg, png, gif)
+                    valid_extensions = {".txt", ".jpg", ".jpeg", ".png", ".gif"}
+                    _, source_extension = os.path.splitext(source_file)
+                    _, destination_extension = os.path.splitext(destination_file)
+
+                    if source_extension.lower() in valid_extensions and destination_extension.lower() in valid_extensions:
+                        if os.path.exists(source_file):
+                            os.rename(source_file, destination_file)
+                            response = f"Archivo {source_file} fue movido a {destination_file}"
+                        else:
+                            response = f"Archivo {source_file} no fue encontrado"
+                    else:
+                        response = f"Extensiones no permitidas. Solo se permiten: {', '.join(valid_extensions)}"
                 else:
                     response = "Uso: mv <origen> <destino>"
             
@@ -64,7 +94,7 @@ def handle_client(obj, addr):
             elif command == 'ayuda':
                 response = "Lista de comandos: ls, mv, up, bye, echo"
                           
-            
+
             #Quinto comando que simplemente replica el mensaje de vuelta que envio el cliente via echo
             elif command == 'echo':
                 #Este control es para prevenir que el cliente crashee su consola por mandar echo sin mensaje
@@ -90,16 +120,48 @@ def handle_client(obj, addr):
         clientes.remove(obj)
         print(f"Conexion con {addr} cerrada")
 
-#Un loop mientras la conexion siga establecida
-while True:
-    #Esperamos conexion de los clientes
-    obj, addr = ser.accept()
+def broadcast(mensaje):
+    for cliente in clientes:
+        try:
+            cliente.sendall(mensaje.encode())
+        except Exception as e:
+            print(f"Error al transmitir el mensaje a un cliente: {e}")
 
-    #Iniciamos un hilo para manejar las conexiones con los clientes
-    cli_thread = threading.Thread(target=handle_client, args=(obj, addr))
-    cli_thread.start()
+try:
+    ser.settimeout(1)
+    #Un loop mientras la conexion siga establecida
+    while True:
+        try:
+            #Esperamos conexion de los clientes
+            obj, addr = ser.accept()
 
-    #Agregamos nuestro cliente a la lista
-    clientes.append(obj)
+            #Iniciamos un hilo para manejar las conexiones con los clientes
+            cli_thread = threading.Thread(target=handle_client, args=(obj, addr))
+            cli_thread.start()
+
+            #Agregamos nuestro cliente a la lista
+            clientes.append(obj)
+
+        except socket.timeout:
+            pass # Continua esperando por conexiones si pasa el timeout
+except KeyboardInterrupt:
+    print("\nEl servidor se esta apagando")
+
+    if not mensaje_enviado:
+        broadcast("El servidor se esta apagando.")
+        mensaje_enviado = True
+
+    # Close all client connections
+    for cliente in clientes:
+        try:
+            cliente.shutdown(socket.SHUT_RDWR)
+            cliente.close()
+        except Exception as e:
+            print(f"Error al cerrar la conexion con cliente: {e}")
+
+    # Close the server socket
+    ser.close()
+    servidor_activo = False
+    print("Servidor cerrado.")
 
 
