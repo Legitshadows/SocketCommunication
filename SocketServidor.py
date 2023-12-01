@@ -16,8 +16,10 @@ ser.listen()
 #Aqui almacenamos nuestros clientes
 clientes = []
 
+#Un flag que se utiliza para ver si el servidor sigue activo o no
 servidor_activo = True
 
+#Se envia un mensaje al cliente de que el servidor se esta apagando, esto checa si ya se envio o no
 mensaje_enviado = False
 
 
@@ -41,8 +43,8 @@ def handle_client(obj, addr):
             if not command:
                 continue
             
-            #Primer comando ls, que muestra una lista de los contenidos del directorio tmp
-            #To do: ls makes console act weird, might have to redo the command
+            #Primer comando ls, que muestra cualqier directorio de la memoria C: (Se puede configurar despues para escoger cual disco)
+            #Igual tiene ahora dos funciones /ls normal que muestra el directorio de C:/ y /ls (destination) que muestra un directorio deaseado por el usuario
             if command == 'ls':
                 if len(args) == 1:
                     destination = ('C://' + args[0])
@@ -56,6 +58,7 @@ def handle_client(obj, addr):
                     response = '\n'.join(file_list)
             
             #Segundo comando de mv que se usa para mover un archivo de origen a destino
+            #Igual que ls, tuvo una nueva forma de procesar los datos y comando
             elif command == 'mv':
                 # Mover un archivo (args[0] = origen, args[1] = destino)
                 if len(args) == 2:
@@ -120,6 +123,8 @@ def handle_client(obj, addr):
         clientes.remove(obj)
         print(f"Conexion con {addr} cerrada")
 
+#Un mensaje que se envia al cliente al cerrar el servidor
+#To-do: This is a little bugged and doesn't actually send
 def broadcast(mensaje):
     for cliente in clientes:
         try:
@@ -127,6 +132,8 @@ def broadcast(mensaje):
         except Exception as e:
             print(f"Error al transmitir el mensaje a un cliente: {e}")
 
+#Los procesos del servidor ahora se manejan en un try para permitir cerrar la consola con CTRL+C
+#Al igual queremos cerrar las sesiones activas para que no sean afectadas.
 try:
     ser.settimeout(1)
     #Un loop mientras la conexion siga establecida
@@ -144,14 +151,16 @@ try:
 
         except socket.timeout:
             pass # Continua esperando por conexiones si pasa el timeout
+#Como la consola del cliente, CTRL+C ahora puede cerrar la consola del servidor
 except KeyboardInterrupt:
     print("\nEl servidor se esta apagando")
 
+    #Aqui checa el flag de mensaje enviado para darle el mensaje de cerrando al servidor al cliente
     if not mensaje_enviado:
         broadcast("El servidor se esta apagando.")
         mensaje_enviado = True
 
-    # Close all client connections
+    # Cierra todas las sesiones de clientes al servidor cuando se apaga
     for cliente in clientes:
         try:
             cliente.shutdown(socket.SHUT_RDWR)
@@ -159,7 +168,7 @@ except KeyboardInterrupt:
         except Exception as e:
             print(f"Error al cerrar la conexion con cliente: {e}")
 
-    # Close the server socket
+    # Se cierra el socket del servidor
     ser.close()
     servidor_activo = False
     print("Servidor cerrado.")

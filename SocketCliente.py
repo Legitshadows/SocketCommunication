@@ -5,17 +5,18 @@ port = 3490
 #para importar el modulo socket en el cliente
 import socket
 
+#Generamos una nueva funcion que se usa para conectarse al servidor 
 def conexion_servidor(host, port):
-    #Aqui creamos el objeto socket
+    #Aqui creamos el objeto socket y se crea la conexion al servidor cuando el cliente introduce el ip
     obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    #Se crea la conexion al servidor cuando el cliente introduce el ip
     obj.connect((host, port))
     return obj
 
+#Generamos igual una nueva funcion para llamar la desconexion al servidor
 def desconectar_servidor(obj):
     obj.close()
 
+#Finalmente una funcion main donde queda igual todo nuestro codigo
 def main():
 
     #Un loop mientras la conexion siga establecida
@@ -24,7 +25,7 @@ def main():
         
 
         try:
-
+            #Nueva manera de manejar la conexion al servidor
             obj = conexion_servidor(host, port)
             print(f"Conectado al servidor {host}:{port}")
 
@@ -53,12 +54,13 @@ def main():
                 print(f"Respuesta del servidor: {recibido.decode()}")
 
         
-    
+        #El primero maneja la conexion al servidor por si se llega a caer o desconectarse, permite que el cliente no se cierra y puede reconectarse a otro servidor
         except (socket.error, ConnectionError):
                 print("Servidor desconectado. Por favor conectate a uno nuevo")
+        #Aqui permite cerrar la consola del cliente mediante el comando bye o dandole a CTRL+C
         except KeyboardInterrupt:
                 print("Se cerrara el cliente")
-
+        #Aqui se maneja la desconexion al servidor para permitir entrar a otro
         finally:
             if 'obj' in locals():
                     desconectar_servidor(obj)
