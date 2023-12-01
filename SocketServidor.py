@@ -48,7 +48,7 @@ def handle_client(obj, addr):
                 if len(args) == 1:
                     destination = ('C://' + args[0])
                     if os.path.exists(destination):
-                        file_list = os.listdir('C://' + destination)
+                        file_list = os.listdir(destination)
                         response = '\n'.join(file_list)
                     else:
                         response = f"El directorio {destination} no existe"
