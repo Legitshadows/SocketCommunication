@@ -1,6 +1,5 @@
 #Importamos de nuevo el modulo de socket y ahora el de threading para las conexiones de los clientes
 import os
-import shutil
 import socket
 import threading
 
