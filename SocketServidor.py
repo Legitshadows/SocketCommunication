@@ -104,7 +104,33 @@ def handle_client(obj, addr):
             #Tercer comando para subir un lugar en el directorio por ejemplo: C:/Windows11/Documents/Code Projects
             #Le das al comando up y pasa a C:/Windows11/Documents
             elif command == 'up':
-                   
+                response = "We are still working on a fix for this command :)"
+            
+            # Nuevo comando tree para mostrar el grafo de conexión del SD (mi pc)
+            elif command == 'tree':
+                # Elegi el directorio donde ejecuto mi codigo de python por que C:// excede los 1024 bytes y no puedo darle permisos :( 
+                root_dir = 'C://Users/Luis/Documents/Code Projects/SocketCommunication'
+                
+                # Inicia la construcción del árbol desde el directorio raíz
+                tree = f"{root_dir}\n"
+                
+                # Función recursiva para construir el árbol de directorios y archivos
+                def build_tree(directory, prefix=''):
+                    nonlocal tree
+                    items = os.listdir(directory)
+                    for item in items:
+                        path = os.path.join(directory, item)
+                        if os.path.isdir(path):
+                            tree += f"{prefix}|-- {item}/\n"
+                            build_tree(path, prefix + "|   ")
+                        else:
+                            tree += f"{prefix}+-- {item}\n"
+                
+                # Construye el árbol
+                build_tree(root_dir)
+                
+                # Envía el árbol al cliente como respuesta
+                response = tree
                                 
             #Cuarto comando de bye que simplemente desconecta el cliente del servidor y cierra la consola
             #To do: Find solution to disconnect from server but not close the client console
