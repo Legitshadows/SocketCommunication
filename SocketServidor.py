@@ -3,6 +3,7 @@ import os
 import socket
 import threading
 
+
 #Definimos el objeto servidor del tipo socket STREAM del dominio AF_INET
 ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -21,7 +22,13 @@ servidor_activo = True
 #Se envia un mensaje al cliente de que el servidor se esta apagando, esto checa si ya se envio o no
 mensaje_enviado = False
 
-
+# Añade esta función para guardar archivos en algún nodo del sistema de archivos
+def guardar_archivo(obj, filename):
+    with open(filename, 'wb') as file:
+        file_data = obj.recv(1024)
+        while file_data:
+            file.write(file_data)
+            file_data = obj.recv(1024)
 
 #Una funcion para manejar las conexiones de los clientes
 def handle_client(obj, addr):
@@ -79,13 +86,26 @@ def handle_client(obj, addr):
                         response = f"Extensiones no permitidas. Solo se permiten: {', '.join(valid_extensions)}"
                 else:
                     response = "Uso: mv <origen> <destino>"
+
+            #Nuevo comando cat para visualizar los archivos de texto
+            elif command == 'cat':
+                # Encontrar y mostrar el contenido de un archivo de texto
+                if args:
+                    filename = args[0]
+                    try:
+                        with open(filename, 'r') as file:
+                            content = file.read()
+                            response = f"Contenido de {filename}:\n{content}"
+                    except FileNotFoundError:
+                        response = f"Archivo {filename} no encontrado"
+                else:
+                    response = "Uso: cat <nombre_del_archivo>"
             
             #Tercer comando para subir un lugar en el directorio por ejemplo: C:/Windows11/Documents/Code Projects
             #Le das al comando up y pasa a C:/Windows11/Documents
             elif command == 'up':
-                os.chdir('..')
-                response = f"Directiorio actual: {os.getcwd()}"
-            
+                   
+                                
             #Cuarto comando de bye que simplemente desconecta el cliente del servidor y cierra la consola
             #To do: Find solution to disconnect from server but not close the client console
             elif command == 'bye':

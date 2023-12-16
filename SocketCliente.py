@@ -1,7 +1,3 @@
-#Variables que se declararon para el codigo
-host = ''
-port = 3490
-
 #para importar el modulo socket en el cliente
 import socket
 
@@ -22,6 +18,7 @@ def main():
     #Un loop mientras la conexion siga establecida
     while True:
         host = input("Introducir el ip del servidor >> ")
+        port = int(input("Introducir el puerto del servidor >> "))
         
 
         try:
@@ -48,7 +45,7 @@ def main():
                 if mens.lower() == 'bye':
                     desconectar_servidor(obj)
                     break
-
+                
                 #Aqui se recibe y muestra la respuesta del servidor
                 recibido = obj.recv(1024)
                 print(f"Respuesta del servidor: {recibido.decode()}")
