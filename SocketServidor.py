@@ -22,13 +22,6 @@ servidor_activo = True
 #Se envia un mensaje al cliente de que el servidor se esta apagando, esto checa si ya se envio o no
 mensaje_enviado = False
 
-# Añade esta función para guardar archivos en algún nodo del sistema de archivos
-def guardar_archivo(obj, filename):
-    with open(filename, 'wb') as file:
-        file_data = obj.recv(1024)
-        while file_data:
-            file.write(file_data)
-            file_data = obj.recv(1024)
 
 #Una funcion para manejar las conexiones de los clientes
 def handle_client(obj, addr):
@@ -101,10 +94,28 @@ def handle_client(obj, addr):
                 else:
                     response = "Uso: cat <nombre_del_archivo>"
             
-            #Tercer comando para subir un lugar en el directorio por ejemplo: C:/Windows11/Documents/Code Projects
-            #Le das al comando up y pasa a C:/Windows11/Documents
+            #Tercer comando para subir archivos al servidor y que se guarde en una carpeta especifica para evitar problemas (solo tengo una pc :(
             elif command == 'up':
-                response = "We are still working on a fix for this command :)"
+                if args:
+                    # El cliente debe proporcionar la ruta completa del archivo local
+                    local_file_path = args[0]
+
+                    # Construimos la ruta de destino en el servidor (por que ando en la misma pc :) )
+                    server_destination = os.path.join('C:/Users/Luis/Documents/Archives', os.path.basename(local_file_path))
+
+                    # Intentamos copiar el archivo al servidor
+                    try:
+                        with open(local_file_path, 'rb') as local_file:
+                            with open(server_destination, 'wb') as server_file:
+                                server_file.write(local_file.read())
+                        response = f"Archivo {os.path.basename(local_file_path)} subido exitosamente al servidor en {server_destination}"
+                    except FileNotFoundError:
+                        response = f"Error: Archivo {os.path.basename(local_file_path)} no encontrado en el cliente"
+                    except Exception as e:
+                        response = f"Error al subir el archivo al servidor: {e}"
+                else:
+                    response = "Uso: up <ruta_del_archivo_local>"
+
             
             # Nuevo comando tree para mostrar el grafo de conexión del SD (mi pc)
             elif command == 'tree':
@@ -140,7 +151,7 @@ def handle_client(obj, addr):
 
             #Un comando para listar todos los comandos (idea de un amigo del salon)
             elif command == 'ayuda':
-                response = "Lista de comandos: ls, mv, up, bye, echo"
+                response = "Lista de comandos: ls, mv, cat, up, tree, bye, echo"
                           
 
             #Quinto comando que simplemente replica el mensaje de vuelta que envio el cliente via echo

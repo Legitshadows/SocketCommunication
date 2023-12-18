@@ -45,7 +45,7 @@ def main():
                 if mens.lower() == 'bye':
                     desconectar_servidor(obj)
                     break
-                
+
                 #Aqui se recibe y muestra la respuesta del servidor
                 recibido = obj.recv(1024)
                 print(f"Respuesta del servidor: {recibido.decode()}")
